@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <!-- Font Awesone -->
+    <script src="https://kit.fontawesome.com/98782bacd0.js" crossorigin="anonymous"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+            integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+            integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+    <!-- Swal -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+    <!-- Custom Styling -->
+    <link rel="stylesheet" href="static/css/style.css">
+
+</head>
+<body>
+
+<div style="display: flex; flex-direction: row; flex-wrap: wrap; flex-basis: 100%; flex-grow: 1;">
+    <div class="number-container p-4" style="width: 50%;">
+        <div class=" row header" style="display: flex; align-items: center; justify-content: space-around">
+            <p class="col-4">Car Number</p>
+            <div class="p-2 col-8 ">
+                <form class="d-flex flex-nowrap justify-content-end align-items-stretch; flex-grow: 1;" action="/find-item"
+                      method="get">
+                    <input style="width: 80%" class="search-input" name="license_number" type="text" minlength="7"
+                           maxlength="7">
+                    <button class="col-2 justify-content-center" type="submit"><i
+                            class="search-icon fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+
+        {% for record in data %}
+            <div class="row">
+                <span class="license-number col-10 column-border">{{ record[0] }}</span>
+                <span class="col-2 column-border">
+                    <i class="icon ripple del-icon col-1 fas fa-trash" data-toggle="tooltip" title="Delete Item"></i>
+                    <i class="icon ripple edit-icon col-1 fa fa-pencil-square" data-toggle="tooltip"
+                       title="Edit Item"></i>
+            </span>
+            </div>
+        {% endfor %}
+
+        <div class="last-row-container">
+            <div id="add-item" class="row last-row add-btn ripple">
+                <svg id="plus-svg">
+                    <line x1="8" y1="1" x2="8" y2="17" style="stroke:rgb(0,0,0);stroke-width:2" stroke-linecap="round"/>
+                    <line x1="1" y1="8" x2="15" y2="8" style="stroke:rgb(0,0,0);stroke-width:2" stroke-linecap="round"/>
+                </svg>
+                <p>Add Item</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="history-container" style="width: 46%;">
+        <h2 style="padding-left: 10px">History</h2>
+        {% for record in log %}
+            <div class="row d-flex align-items-center history-card justify-content-around">
+                    <img data-toggle="tooltip" title="The Image that the user uploaded." class="col-3" style="width:100px; height:50px;" src="static/img/{{ record[0] }}.png" alt="car image">
+                    <img data-toggle="tooltip" title="Where the algorthim thinks the license plate Is." class="col-2"  src="static/img/{{ record[0] }}C.png" alt="License image">
+                    <span data-toggle="tooltip" title="The Number Extracted by the algorthim" class="col-2" style="font-size:12px; display:block;line-height:15px"><p>Extracted Num:</p> <p>{{ record[1] }}</p></span>
+                    <span data-toggle="tooltip" title="The Number the User inputed to Search for" class="col-2" style="font-size:12px; display:block;line-height:15px"><p>Searched Num:</p> <p>{{ record[2] }}</p></span>
+                    <span id="{{ loop.index }}" class="date col-3 flex-column" onload="setDate"
+                          style="line-height: 10px;">
+                    <p>Date:</p>
+                    <p id="date"></p>
+                    <p id="time"></p>
+                    </span>
+                    <span>
+                    </span>
+                    <script>
+                        {
+                            let dateElement = document.getElementById({{ loop.index }});
+
+                            let date = String("{{ record[3] }}");
+                            let dd = date.split(" ");
+                            dateElement.children[1].innerText = dd[0];
+                            dateElement.children[2].innerText = dd[1];
+                        }
+                    </script>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% if item_found==1 %}
+    <script>
+        let element = $(".license-number:contains({{ value }}):last");
+        let oldColor = element.css("background-color");
+        // Swal.fire({text: 'Item Found', type: "success"}).then()
+
+            $(window).scrollTop(element.offset().top);
+            window.history.pushState("object or string", "Title", "/");
+            element.animate({backgroundColor: '#00ff00'}, 1000);
+            element.animate({backgroundColor: oldColor}, 'slow');
+
+    </script>
+{% elif item_found==2 %}
+    <script>
+        Swal.fire({text: 'Item Not Found', showCloseButton: true,}).then(function () {
+            window.history.pushState("object or string", "Title", "/");
+        });
+    </script>
+{% endif %}
+
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
+<script>
+    function add_item(item) {
+        $.ajax({
+            url: '/add-item',
+            data: {
+                license_number: item,
+            },
+            dataType: 'JSON',
+            type: 'GET',
+            success: async function (reponse) {
+                if (reponse['op_done'] === 1) {
+                    await Swal.fire({text: 'Item Added'});
+                    location.reload();
+                } else if (reponse['op_done'] === 2) {
+                    await Swal.fire({text: 'Item Already Exists'});
+                }
+            }
+        });
+    }
+
+    function del_item(item) {
+        $.ajax({
+            url: '/del-item',
+            data: {
+                license_number: item,
+            },
+            dataType: 'JSON',
+            type: 'GET',
+            error: async function () {
+                await Swal.fire({text: 'Item Deleted'})
+                location.reload();
+            }
+        });
+    }
+
+    function editItem(oldItem, newItem) {
+        $.ajax({
+            url: '/edit-item',
+            data: {
+                old_number: oldItem,
+                new_number: newItem,
+            },
+            dataType: 'JSON',
+            type: 'GET',
+            success: async function (response) {
+                if (response['op_done'] === 1) {
+                    await Swal.fire({text: 'Item Updated'});
+                    location.reload();
+                } else if (response['op_done'] === 2) {
+                    await Swal.fire({text: 'New Value Already Exists'});
+
+                }
+            },
+        });
+    }
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#add-item').click(async function () {
+            Swal.fire({
+                text: 'Enter The Car Number You want to add',
+                input: 'number'
+            }).then(function (result) {
+                if (result.value && result.value.length === 7) {
+                    let licenseNumber = result.value;
+                    add_item(licenseNumber);
+                } else {
+                    Swal.fire({text: "Please Enter a 7 digit Number"})
+                }
+            });
+        });
+    });
+
+    $('.del-icon').click(async function (event) {
+        let itemToDelete = $(event.target).parent().parent().children('.license-number').text();
+
+        Swal.fire({
+            title: '<htm><strong>Delete Item</strong></html>',
+            html: 'Are you <strong>SURE</strong> you want to <strong>DELETE</strong> this Item',
+            showCloseButton: true,
+            showCancelButton: true,
+            focusConfirm: false,
+            confirmButtonText:
+                '<i class="fa fa-thumbs-up"></i> Yes!',
+            confirmButtonAriaLabel: 'Thumbs up, great!',
+            cancelButtonText:
+                '<i class="fa fa-thumbs-down"></i> No!',
+            cancelButtonAriaLabel: 'Thumbs down'
+        }).then(function (result) {
+            if (result.value === true) {
+                del_item(itemToDelete);
+            }
+        });
+    });
+
+    $('.edit-icon').click(function (event) {
+        let oldNumber = $(event.target).parent().parent().children('.license-number').text();
+
+        Swal.fire({
+            html: 'The New Value You want to replace <b>' + oldNumber + '</b> With',
+            input: 'number'
+        }).then(async function (result) {
+            let newNumber = '0000000';
+            if (result.value && result.value.length === 7) {
+                newNumber = result.value;
+                editItem(oldNumber, newNumber)
+            } else {
+                Swal.fire({text: "Not Valid Input"})
+            }
+        })
+    });
+
+    $('.undo-icon').click(function (event) {
+        let parent = $(event.target).parent().parent();
+        let op = parent.children('p')[0].innerText;
+
+        op = op.split(' ')[1];
+        if (op === 'Adding') {
+            let valueToDelete = parent.children('p')[1].innerText;
+            valueToDelete = valueToDelete.split(" ")[2];
+            del_item(valueToDelete);
+        } else if (op === 'Deleteing') {
+            let valueToAdd = parent.children('p')[1].innerText;
+            valueToAdd = valueToAdd.split(" ")[2];
+            add_item(valueToAdd);
+        } else if (op === 'Updating') {
+            let newValue = parent.children('span')[0].childNodes[1].innerText;
+            newValue = newValue.split(" ")[2];
+            let oldValue = parent.children('span')[0].childNodes[3].innerText;
+            oldValue = oldValue.split(" ")[2];
+            editItem(newValue, oldValue);
+        } else {
+            Swal.fire({text: "Invalid Operation"})
+        }
+    })
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+
+:root {
+    --table-border-color: rgba(0, 0, 0, 0.07);
+}
+
+body {
+    padding: 18px;
+}
+
+.number-container, .history-container {
+    /*width: 50%;*/
+    margin: 10px;
+    border: 1px solid var(--table-border-color);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #ded9d9;
+}
+
+.column-border {
+    display: flex;
+    border: 2px solid var(--table-border-color);
+    justify-content: space-around;
+    align-items: center;
+}
+
+.license-number {
+    font-size: 24px;
+    font-family: 'Varela Round', sans-serif;
+}
+
+.icon {
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 8%;
+    height: 35px;
+    transition: background-color 0.4s ease-out;
+}
+
+.icon:hover {
+    background-color: orange;
+}
+
+p {
+    padding-left: 5px;
+    font-size: 18px;
+    margin-top: 2%;
+}
+
+
+.last-row {
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+}
+
+.last-row:hover > * {
+    font-size: 20px;
+}
+
+#plus-svg {
+    border-radius: 50%;
+    padding: 2px;
+    box-sizing: border-box;
+    height: 20px;
+    width: 22px;
+}
+
+@keyframes rotate-360 {
+    from {
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotate-360-back {
+    from {
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.last-row > #plus-svg {
+    animation-name: rotate-360-back;
+    animation-duration: 1s;
+}
+
+.last-row:hover > #plus-svg {
+    animation: rotate-360 0.5s linear 0s 1 normal forwards;
+}
+
+.last-row-container {
+    display: inline-block;
+}
+
+.last-row-container p {
+    margin: auto;
+}
+
+.row:nth-child(even) {
+    background-color: #d2d2d2;
+}
+
+
+.ripple:active {
+    background-color: #7f879a;
+    background-size: 100%;
+    transition: background 0s;
+}
+
+form {
+    background-color: white;
+    border-radius: 15px;
+    border: none;
+}
+
+input {
+    border: none;
+}
+
+form > button {
+    text-align: center;
+    background-color: white;
+    border: none;
+}
+
+.history-card{
+    margin: 10px;
+    border: 1px solid #d4d4d4;
+}
